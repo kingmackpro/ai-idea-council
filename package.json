@@ -5,16 +5,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "install": "cd server && npm install && cd ../client && npm install",
-    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "install": "npm-run-all install:*",
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "dev": "npm-run-all dev:*",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
-    "build": "cd client && npm run build",
-    "start": "concurrently \"cd server && npm start\" \"cd client && npm run preview\"",
+    "build": "npm-run-all build:*",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "npm-run-all start:*",
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm start",
+    "preview": "cd client && npm run preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "concurrently": "^9.1.0"
+    "npm-run-all": "^4.1.5"
   },
   "engines": {
     "node": ">=14.0.0"

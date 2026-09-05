@@ -1,12 +1,13 @@
-# Install root deps first (concurrently), then server + client
+# Install everything
 npm install
-npm run install
 
-# Run both servers with one command
+# Start everything
 npm run dev
 
-# Or start them manually in two terminals:
-#   cd server && npm run dev
-#   cd client && npm run dev
+# Or:
+#   npm run install:server
+#   npm run install:client
+#   npm run dev:server
+#   npm run dev:client
 
 # Open http://localhost:5173
