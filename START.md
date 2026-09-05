@@ -1,39 +1,11 @@
-# Clone
-```bash
+# Install all dependencies
 git clone https://github.com/kingmackpro/ai-idea-council.git
 cd ai-idea-council
-```
 
-# Install
-```bash
-# Server
-cd server
-npm install
+# One command installs both server and client
+npm run install:all
 
-# Client
-cd ../client
-npm install
-
-# Create .env (optional — UI can set these)
-cd ../server
-cp .env.example .env
-```
-
-# Start
-```bash
-# Backend
-cd server
-npm start
-
-# Frontend (in another terminal)
-cd client
+# Run both servers with one command
 npm run dev
-```
 
-# Or use docker
-```bash
-docker-compose up --build
-```
-
-# Open
-Open http://localhost:5173
+# Open http://localhost:5173
