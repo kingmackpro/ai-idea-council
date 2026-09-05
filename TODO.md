@@ -3,20 +3,20 @@
 - [x] Add CORS and JSON middleware
 - [x] Create `/api/models` endpoint that forwards to `${BASE_URL}/models` with optional auth
 - [x] Create `/api/chat/completions` endpoint that forwards to `${BASE_URL}/chat/completions` with streaming support
-- [ ] Test backend with a sample endpoint (e.g., OpenAI or local mock)
+- [x] Test backend with a sample endpoint (e.g., OpenAI or local mock)
 - [x] Enhance frontend connection screen:
   - Show loading/success/error states for Fetch Models
   - Display model list in dropdown
   - Enable manual model entry fallback
   - Add Test Connection button that calls backend `/api/chat/completions` with a minimal prompt
   - Store connection settings in React state or localStorage
-- [ ] Create council room layout:
+- [x] Create council room layout:
   - Visual room with four agent positions (Believer, Skeptic, Investor, Judge)
   - Idea input area and Start Council button
   - Timeline/progress indicator
   - Transcript panel
   - Verdict/score display
-- [ ] Implement agent orchestration logic (backend or frontend):
+- [x] Implement agent orchestration logic (backend or frontend):
   - Define agent roles and prompts
   - Sequence: initial analysis → debate rounds → judge deliberation → verdict
   - Emit structured events (agent_state, agent_message, debate_event, judge_state, verdict)

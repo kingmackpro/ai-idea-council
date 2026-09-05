@@ -85,6 +85,34 @@ app.post('/api/chat/completions', async (req, res) => {
   }
 });
 
+// Test endpoint to verify backend is reachable
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Backend is working', timestamp: new Date().toISOString() });
+});
+
+// Mock orchestration endpoint (for council room)
+app.post('/api/orchestrate', async (req, res) => {
+  const { idea } = req.body;
+  // Simulate agent responses
+  const believer = { agent: 'believer', summary: `The idea "${idea}" has strong potential due to ...` };
+  const skeptic = { agent: 'skeptic', summary: `However, there are risks such as ...` };
+  const investor = { agent: 'investor', summary: `From a market perspective, ...` };
+  const judge = { agent: 'judge', verdict: 'BUILD_WITH_CHANGES', score: 78, summary: `Overall, the idea is promising but needs work.` };
+  // Emit events (we'll just return all)
+  res.json({
+    events: [
+      { type: 'agent_state', agent: 'believer', state: 'analyzing' },
+      { type: 'agent_message', agent: 'believer', summary: believer.summary },
+      { type: 'agent_state', agent: 'skeptic', state: 'analyzing' },
+      { type: 'agent_message', agent: 'skeptic', summary: skeptic.summary },
+      { type: 'agent_state', agent: 'investor', state: 'analyzing' },
+      { type: 'agent_message', agent: 'investor', summary: investor.summary },
+      { type: 'agent_state', agent: 'judge', state: 'deliberating' },
+      { type: 'verdict', verdict: judge.verdict, score: judge.score, summary: judge.summary }
+    ]
+  });
+});
+
 app.get('/', (req, res) => {
   res.json({ message: 'AI Idea Council API' });
 });
