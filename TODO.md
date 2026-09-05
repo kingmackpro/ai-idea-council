@@ -1,10 +1,10 @@
-- [ ] Set up backend Express server with routes for model listing and chat completions (proxy to user-configured OpenAI-compatible endpoint)
-- [ ] Implement environment variable loading for backend (BASE_URL, API_KEY, MODEL)
-- [ ] Add CORS and JSON middleware
-- [ ] Create `/api/models` endpoint that forwards to `${BASE_URL}/models` with optional auth
-- [ ] Create `/api/chat/completions` endpoint that forwards to `${BASE_URL}/chat/completions` with streaming support
+- [x] Set up backend Express server with routes for model listing and chat completions (proxy to user-configured OpenAI-compatible endpoint)
+- [x] Implement environment variable loading for backend (BASE_URL, API_KEY, MODEL)
+- [x] Add CORS and JSON middleware
+- [x] Create `/api/models` endpoint that forwards to `${BASE_URL}/models` with optional auth
+- [x] Create `/api/chat/completions` endpoint that forwards to `${BASE_URL}/chat/completions` with streaming support
 - [ ] Test backend with a sample endpoint (e.g., OpenAI or local mock)
-- [ ] Enhance frontend connection screen:
+- [x] Enhance frontend connection screen:
   - Show loading/success/error states for Fetch Models
   - Display model list in dropdown
   - Enable manual model entry fallback
