@@ -26,4 +26,4 @@
 - [x] Implement Challenge Verdict, Modify Idea, and Rerun actions
 - [x] Polish UI/UX: responsive design, accessibility, reduced motion, error handling
 - [x] Write README with setup instructions and usage guide
-- [ ] Optional: Dockerize for easy local deployment
+- [x] Optional: Dockerize for easy local deployment
