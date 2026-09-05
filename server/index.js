@@ -13,6 +13,12 @@ let config = {
   model: process.env.MODEL || ''
 };
 
+// SSE listeners
+const sseListeners = new Set();
+
+// In-memory session storage
+const sessions = [];
+
 app.use(cors());
 app.use(express.json());
 
@@ -90,27 +96,103 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working', timestamp: new Date().toISOString() });
 });
 
+// SSE endpoint for events
+app.get('/api/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  // Send a comment to keep connection alive
+  const sendHeartbeat = () => {
+    res.write(':heartbeat\\n\\n');
+  };
+  const interval = setInterval(sendHeartbeat, 15000);
+
+  // Store response object to send events later
+  sseListeners.add(res);
+
+  req.on('close', () => {
+    clearInterval(interval);
+    sseListeners.delete(res);
+    res.end();
+  });
+});
+
+// Helper to broadcast event to all SSE clients
+function broadcastEvent(event) {
+  const data = `data: ${JSON.stringify(event)}\\n\\n`;
+  sseListeners.forEach(res => {
+    if (!res.finished) {
+      res.write(data);
+    }
+  });
+}
+
 // Mock orchestration endpoint (for council room)
 app.post('/api/orchestrate', async (req, res) => {
   const { idea } = req.body;
-  // Simulate agent responses
-  const believer = { agent: 'believer', summary: `The idea "${idea}" has strong potential due to ...` };
-  const skeptic = { agent: 'skeptic', summary: `However, there are risks such as ...` };
-  const investor = { agent: 'investor', summary: `From a market perspective, ...` };
-  const judge = { agent: 'judge', verdict: 'BUILD_WITH_CHANGES', score: 78, summary: `Overall, the idea is promising but needs work.` };
-  // Emit events (we'll just return all)
-  res.json({
-    events: [
-      { type: 'agent_state', agent: 'believer', state: 'analyzing' },
-      { type: 'agent_message', agent: 'believer', summary: believer.summary },
-      { type: 'agent_state', agent: 'skeptic', state: 'analyzing' },
-      { type: 'agent_message', agent: 'skeptic', summary: skeptic.summary },
-      { type: 'agent_state', agent: 'investor', state: 'analyzing' },
-      { type: 'agent_message', agent: 'investor', summary: investor.summary },
-      { type: 'agent_state', agent: 'judge', state: 'deliberating' },
-      { type: 'verdict', verdict: judge.verdict, score: judge.score, summary: judge.summary }
-    ]
+  // Simulate agent responses with timed events
+  const events = [];
+  const agentStates = [
+    { agent: 'believer', state: 'analyzing' },
+    { agent: 'skeptic', state: 'analyzing' },
+    { agent: 'investor', state: 'analyzing' },
+    { agent: 'judge', state: 'deliberating' }
+  ];
+  agentStates.forEach((s, i) => {
+    events.push({
+      type: 'agent_state',
+      agent: s.agent,
+      state: s.state,
+      timestamp: Date.now() + i * 500
+    });
   });
+  // Messages
+  events.push(
+    { type: 'agent_message', agent: 'believer', summary: `The idea "${idea}" has strong potential due to ...`, timestamp: Date.now() + 500 },
+    { type: 'agent_message', agent: 'skeptic', summary: `However, there are risks such as ...`, timestamp: Date.now() + 1000 },
+    { type: 'agent_message', agent: 'investor', summary: `From a market perspective, ...`, timestamp: Date.now() + 1500 },
+    { type: 'agent_message', agent: 'judge', summary: `Overall, the idea is promising but needs work.`, timestamp: Date.now() + 2000 }
+  );
+  // Verdict
+  events.push({
+    type: 'verdict',
+    verdict: 'BUILD_WITH_CHANGES',
+    score: 78,
+    summary: `Overall, the idea is promising but needs work.`,
+    timestamp: Date.now() + 2500
+  });
+
+  // Send events with slight delay to simulate streaming
+  events.forEach((ev, idx) => {
+    setTimeout(() => {
+      broadcastEvent(ev);
+    }, ev.timestamp);
+  });
+
+  // Also return immediately for polling fallback
+  res.json({ events });
+
+  // Save session after a delay
+  setTimeout(() => {
+    const session = {
+      id: Date.now(),
+      idea,
+      timestamp: new Date().toISOString(),
+      events,
+      verdict: 'BUILD_WITH_CHANGES',
+      score: 78
+    };
+    sessions.push(session);
+    // Keep only last 10 sessions
+    if (sessions.length > 10) sessions.shift();
+  }, 3000);
+});
+
+// Get sessions
+app.get('/api/sessions', (req, res) => {
+  res.json(sessions);
 });
 
 app.get('/', (req, res) => {
