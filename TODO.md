@@ -23,7 +23,7 @@
 - [x] Connect frontend to event stream (e.g., via Server-Sent Events or polling)
 - [x] Animate agents based on events (thinking, speaking, etc.)
 - [x] Add session persistence (save/load sessions to localStorage or IndexedDB)
-- [ ] Implement Challenge Verdict, Modify Idea, and Rerun actions
-- [ ] Polish UI/UX: responsive design, accessibility, reduced motion, error handling
-- [ ] Write README with setup instructions and usage guide
+- [x] Implement Challenge Verdict, Modify Idea, and Rerun actions
+- [x] Polish UI/UX: responsive design, accessibility, reduced motion, error handling
+- [x] Write README with setup instructions and usage guide
 - [ ] Optional: Dockerize for easy local deployment

@@ -22,6 +22,7 @@ function App() {
   const [score, setScore] = useState(null);
   const [eventSource, setEventSource] = useState(null);
   const [sessions, setSessions] = useState([]);
+  const [challengeMode, setChallengeMode] = useState(false); // for challenge verdict
 
   // Load saved config from backend on startup
   useEffect(() => {
@@ -108,7 +109,7 @@ function App() {
     }
   };
 
-  const startCouncil = async () => {
+  const startCouncil = async (overrideIdea) => {
     setLoading(true);
     setStep('council');
     setEvents([]);
@@ -150,7 +151,7 @@ function App() {
       const resp = await fetch('/api/orchestrate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idea })
+        body: JSON.stringify({ idea: overrideIdea || idea })
       });
       const data = await resp.json();
       setCouncilResult(data);
@@ -169,11 +170,26 @@ function App() {
       eventSource.close();
       setEventSource(null);
     }
+    setChallengeMode(false);
   };
 
   const rerun = () => {
     // Restart with same idea
     startCouncil();
+  };
+
+  const challengeVerdict = () => {
+    // For simplicity, we just flip the idea to a challenge version
+    const challengedIdea = `Challenge: Prove that the idea "${idea}" is flawed or unlikely to succeed`;
+    setChallengeMode(true);
+    startCouncil(challengedIdea);
+  };
+
+  const modifyIdea = () => {
+    const newIdea = window.prompt('Modify your idea:', idea);
+    if (newIdea !== null && newIdea.trim() !== '') {
+      setIdea(newIdea);
+    }
   };
 
   const saveSession = () => {
@@ -184,7 +200,8 @@ function App() {
       timestamp: new Date().toISOString(),
       events,
       verdict,
-      score
+      score,
+      challengeMode
     };
     setSessions(prev => {
       const updated = [newSession, ...prev];
@@ -299,13 +316,20 @@ function App() {
                 style={{ width: '100%', height: '100px', padding: '0.5rem' }}
               />
             </label>
-            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button
                 onClick={startCouncil}
                 disabled={loading || !idea.trim()}
-                style={{ flex: 1, padding: '0.75rem', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                style={{ flex: 1, minWidth: '120px', padding: '0.75rem', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
               >
                 {loading ? 'STARTING...' : '[ ⚡ START COUNCIL ]'}
+              </button>
+              <button
+                onClick={modifyIdea}
+                disabled={loading}
+                style={{ flex: 1, minWidth: '120px', padding: '0.5rem', background: '#2196F3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                ✏️ Modify Idea
               </button>
               <button
                 onClick={() => localStorage.removeItem('councilSessions')}
@@ -390,6 +414,7 @@ function App() {
             <h3>VERDICT</h3>
             <div style={{ fontSize: '1.5rem', margin: '0.5rem 0' }}>{verdict}</div>
             <div>Score: {score}/100</div>
+            {challengeMode && <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#555' }}> (Challenge mode)</div>}
           </div>
         )}
       </div>
@@ -428,23 +453,30 @@ function App() {
           </div>
         )}
         
-        <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem' }}>
+        <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
             onClick={goBack}
-            style={{ flex: 1, padding: '0.5rem 1rem', background: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: '100px', padding: '0.5rem 1rem', background: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             Back to Connection
           </button>
           <button
             onClick={rerun}
             disabled={loading || !idea.trim()}
-            style={{ flex: 1, padding: '0.5rem 1rem', background: '#ff9800', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: '100px', padding: '0.5rem 1rem', background: '#ff9800', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             Rerun Council
           </button>
           <button
+            onClick={challengeVerdict}
+            disabled={loading || !idea.trim() || !verdict}
+            style={{ flex: 1, minWidth: '120px', padding: '0.5rem 1rem', background: '#9c27b0', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          >
+            �� Challenge Verdict
+          </button>
+          <button
             onClick={saveSession}
-            style={{ flex: 1, padding: '0.5rem 1rem', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: '100px', padding: '0.5rem 1rem', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             Save Session
           </button>
@@ -457,6 +489,7 @@ function App() {
               {sessions.map((sess, idx) => (
                 <li key={idx} style={{ padding: '0.5rem', marginBottom: '0.3rem', background: '#f5f5f5', borderRadius: '4px' }}>
                   <strong>{sess.idea}</strong> ({sess.verdict} - {sess.score}/100) 
+                  {sess.challengeMode && <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: '#9c27b0' }}>[Challenge]</span>}
                   <br/>
                   <small>{new Date(sess.timestamp).toLocaleString()}</small>
                 </li>
