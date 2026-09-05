@@ -1,21 +1,11 @@
-# Dockerfile for client
 FROM node:18-alpine AS builder
 
 WORKDIR /app
-
-# Copy package files
-COPY client/package*.json ./
-
-# Install dependencies
+COPY package*.json ./
 RUN npm ci
-
-# Copy client code
-COPY client/ .
-
-# Build for production
+COPY . .
 RUN npm run build
 
-# Production image
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80

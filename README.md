@@ -12,6 +12,8 @@ A local-first web application where a user submits an idea and watches a council
 - Challenge Verdict mode to stress-test the judge's decision
 - Modify Idea and Rerun actions
 - Responsive design
+- SSE event streaming for real-time events
+- Local-first — no account required
 
 ## Getting Started
 
@@ -41,10 +43,9 @@ A local-first web application where a user submits an idea and watches a council
    cd ..
    ```
 
-3. Create a `.env` file in the `server` directory (optional, can set via environment):
+3. Create a `.env` file in the `server` directory (optional — UI can set these):
    ```
    PORT=5000
-   # Example values - you will override these via the UI
    BASE_URL=https://api.openai.com/v1
    API_KEY=sk-...
    MODEL=gpt-4o
@@ -52,13 +53,13 @@ A local-first web application where a user submits an idea and watches a council
 
 ### Development
 
-Start the backend server:
+Start the backend server (terminal 1):
 ```bash
 cd server
 npm start
 ```
 
-Start the frontend dev server:
+Start the frontend dev server (terminal 2):
 ```bash
 cd client
 npm run dev
@@ -80,9 +81,9 @@ Open http://localhost:5173 in your browser.
 
 ## Project Structure
 
-- `server/` - Express backend that proxies requests to your AI endpoint and provides SSE event streaming.
-- `client/` - React + Vite frontend with the connection screen and council room UI.
-- `TODO.md` - Development task list.
+- `server/` — Express backend that proxies requests to your AI endpoint and provides SSE event streaming.
+- `client/` — React + Vite frontend with the connection screen and council room UI.
+- `TODO.md` — Development task list.
 
 ## License
 
