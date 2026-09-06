@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // In-memory config (could be persisted to file)
-let config = {
+const config = {
   baseUrl: process.env.BASE_URL || '',
   apiKey: process.env.API_KEY || '',
   model: process.env.MODEL || ''
